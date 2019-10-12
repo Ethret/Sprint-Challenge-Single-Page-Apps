@@ -1,16 +1,51 @@
 import React, { useEffect, useState } from "react";
+import Axios from "axios";
+
+import CharacterCard from './CharacterCard';
+import SearchForm from './SearchForm';
 
 export default function CharacterList() {
-  // TODO: Add useState to track data from useEffect
+
+  const [data, setData] = useState([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    // TODO: Add API Request here - must run in `useEffect`
-    //  Important: verify the 2nd `useEffect` parameter: the dependancies array!
-  }, []);
+
+    Axios
+      .get(`https://rickandmortyapi.com/api/character/?name=${search}`)
+      .then(res => {
+        console.log(res);
+        const characters = res.data.results;
+        setData(characters);
+      })
+      .catch(err => {
+        console.log('No character found with that name!');
+      })
+  }, [search]);
+
+  const handleChange = (event) => {
+    event.preventDefault();
+    setSearch(event.target.value);
+  }
 
   return (
     <section className="character-list">
-      <h2>TODO: `array.map()` over your state here!</h2>
+      <h2>Who're we looking for?</h2>
+      <SearchForm
+        placeholder='Gimme A Name...'
+        value={search}
+        handleChange={handleChange}
+      />
+      <br/>
+      <div className="grid-view">
+        {data.map(character => (
+          <CharacterCard
+            key={character.id}
+            name={character.name}
+            image={character.image}
+          />
+        ))}
+      </div>
     </section>
   );
 }
